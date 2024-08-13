@@ -13,14 +13,14 @@ dataAnalyst = Blueprint('dataAnalyst', __name__)
 def get_all_dataAnalyst():
     
     cursor = db.get_db().cursor()
-    the_query = '''
-    SELECT * 
-    FROM employees
-'''
-cursor.execute(the_query)
-theData = cursor.fetchall()
-the_response = make_response(theData)
-the_response.status_code = 200
-the_response.mimetype = 'application/json'
-return the_response
+    the_query = """
+    SELECT * FROM employees
+    """
+    cursor.execute(the_query)
+    theData = cursor.fetchall()
+    the_response = make_response(theData)
+    the_response.status_code = 200
+    the_response.mimetype = 'application/json'
+    return the_response
 
+    
