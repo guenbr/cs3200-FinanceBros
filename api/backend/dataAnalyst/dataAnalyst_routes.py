@@ -11,25 +11,15 @@ dataAnalyst = Blueprint('dataAnalyst', __name__)
 
 @dataAnalyst.route('/dataAnalyst', methods=['GET'])
 def get_all_dataAnalyst():
-    
     current_app.logger.info('GET /dataAnalyst route')
     cursor = db.get_db().cursor()
-    the_query = """
-    SELECT * 
-    FROM employees
-    """
-    cursor.execute(the_query)
-
     # the_query = '''
     # SELECT * 
     # FROM stock
     # '''
     cursor.execute('select * from stock')
-
     theData = cursor.fetchall()
     the_response = make_response(theData)
     the_response.status_code = 200
     the_response.mimetype = 'application/json'
     return the_response
-
-    
