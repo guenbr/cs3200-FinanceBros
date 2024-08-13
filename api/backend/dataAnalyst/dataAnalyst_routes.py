@@ -14,7 +14,8 @@ def get_all_dataAnalyst():
     
     cursor = db.get_db().cursor()
     the_query = """
-    SELECT * FROM employees
+    SELECT * 
+    FROM employees
     """
     cursor.execute(the_query)
     theData = cursor.fetchall()
