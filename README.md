@@ -2,7 +2,7 @@
 
 ## About
 
-This example project explores some features of Streamlit & Flask to build a comprehensive web app for your project.  You won't necessarily have to use all of the features in this example in your course project 
+This example project explores some features of Streamlit & Flask to build a comprehensive web app for your project.  You won't necessarily have to use all of the features in this example in your course project.
 
 ## Current Project Components
 
