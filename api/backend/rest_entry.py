@@ -7,6 +7,8 @@ from backend.db_connection import db
 from backend.customers.customer_routes import customers
 from backend.products.products_routes import products
 from backend.dataAnalyst.dataAnalyst_routes import dataAnalyst
+from backend.verExpTrader.verExpTrader_routes import experiencedTrader
+from backend.regular_user.regular_user_routes import user
 import os
 from dotenv import load_dotenv
 
@@ -97,6 +99,8 @@ def create_app():
     app.register_blueprint(customers,   url_prefix='/c')
     app.register_blueprint(products,    url_prefix='/p')
     app.register_blueprint(dataAnalyst, url_prefix='/d')
+    app.register_blueprint(experiencedTrader, url_prefix='/v')
+    app.register_blueprint(user, url_prefix='/u')
 
     # Don't forget to return the app object
     return app
