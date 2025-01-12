@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, make_response, current_app
+from backend.stock_analyzer import StockAnalyzer
 import json
 from backend.db_connection import db
 
@@ -160,3 +161,54 @@ def addStock(portfolio_id, ticker):
     response.mimetype = 'application/json'
     return response
 
+# GET /stock/analysis/{ticker}
+# Returns comprehensive analysis for a specific stock
+@user.route('/stock/analysis/<ticker>', methods=['GET'])
+def get_stock_analysis(ticker):
+    current_app.logger.info(f'GET /stock/analysis/{ticker} route')
+    analyzer = StockAnalyzer(db.get_db())
+    
+    try:
+        analysis = analyzer.analyze_stock(ticker)
+        if "error" in analysis:
+            return jsonify({"error": analysis["error"]}), 404
+            
+        the_response = make_response(jsonify(analysis))
+        the_response.status_code = 200
+        the_response.mimetype = 'application/json'
+        return the_response
+        
+    except Exception as e:
+        current_app.logger.error(f"Error analyzing stock {ticker}: {e}")
+        return jsonify({"error": "Failed to analyze stock"}), 500
+
+# GET /stock/recommendations
+# Returns top stock recommendations based on analysis
+@user.route('/stock/recommendations', methods=['GET'])
+def get_stock_recommendations():
+    current_app.logger.info('GET /stock/recommendations route')
+    analyzer = StockAnalyzer(db.get_db())
+    
+    try:
+        cursor = db.get_db().cursor()
+        cursor.execute('SELECT ticker FROM stock')
+        stocks = cursor.fetchall()
+        
+        recommendations = []
+        for stock in stocks:
+            analysis = analyzer.analyze_stock(stock['ticker'])
+            if "error" not in analysis and analysis["confidence"] > 70:
+                recommendations.append(analysis)
+                
+        # Sort by confidence
+        recommendations.sort(key=lambda x: x["confidence"], reverse=True)
+        
+        # Return top 5 recommendations
+        the_response = make_response(jsonify(recommendations[:5]))
+        the_response.status_code = 200
+        the_response.mimetype = 'application/json'
+        return the_response
+        
+    except Exception as e:
+        current_app.logger.error(f"Error getting stock recommendations: {e}")
+        return jsonify({"error": "Failed to get recommendations"}), 500

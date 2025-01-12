@@ -214,6 +214,18 @@ INSERT INTO stock (ticker, sharePrice, stockName, beta) VALUES ('MSBF', '474.51'
 INSERT INTO stock (ticker, sharePrice, stockName, beta) VALUES ('TCBI', '276.89', 'Texas Capital Bancshares, Inc.', '0.328632');
 INSERT INTO stock (ticker, sharePrice, stockName, beta) VALUES ('SGH', '695.32', 'SMART Global Holdings, Inc.', '2.0359705');
 
+INSERT INTO stock_historical_data (ticker, date, close_price, volume) VALUES
+('AAPL', DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY), 135.27, 125000000),
+('AAPL', DATE_SUB(CURRENT_DATE, INTERVAL 29 DAY), 136.96, 128000000),
+('AAPL', DATE_SUB(CURRENT_DATE, INTERVAL 28 DAY), 137.87, 130000000),
+('AAPL', DATE_SUB(CURRENT_DATE, INTERVAL 27 DAY), 138.19, 122000000),
+('AAPL', DATE_SUB(CURRENT_DATE, INTERVAL 26 DAY), 137.38, 118000000),
+('AAPL', DATE_SUB(CURRENT_DATE, INTERVAL 25 DAY), 138.45, 125000000),
+('AAPL', DATE_SUB(CURRENT_DATE, INTERVAL 24 DAY), 139.72, 132000000),
+('AAPL', DATE_SUB(CURRENT_DATE, INTERVAL 23 DAY), 140.35, 135000000),
+('AAPL', DATE_SUB(CURRENT_DATE, INTERVAL 22 DAY), 141.56, 140000000),
+('AAPL', DATE_SUB(CURRENT_DATE, INTERVAL 21 DAY), 142.65, 145000000),
+('AAPL', DATE_SUB(CURRENT_DATE, INTERVAL 20 DAY), 143.78, 150000000);
 
 INSERT INTO notifications (notification_id, text, likes, timeCreated, firstViewedAt, lastViewedAt, viewedAtResponseTime, user_id) VALUES ('2123423', 'Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum.', '32', '2024-06-09 13:47:18', '2024-06-09 13:47:41', '2024-07-03 12:52:20', '46437', '1964');
 INSERT INTO notifications (notification_id, text, likes, timeCreated, firstViewedAt, lastViewedAt, viewedAtResponseTime, user_id) VALUES ('34243', 'Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa.', '4', '2024-01-18 19:32:46', '2024-01-18 19:33:09', '2024-02-25 11:42:21', '52139', '1964');

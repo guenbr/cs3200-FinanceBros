@@ -25,6 +25,62 @@ CREATE TABLE IF NOT EXISTS stock (
     PRIMARY KEY (ticker)
 );
 
+ALTER TABLE stock
+ADD COLUMN historical_data JSON DEFAULT NULL,
+ADD COLUMN trend_indicator DECIMAL(10,2) DEFAULT 0.00;
+
+CREATE TABLE stock_historical_data (
+    ticker VARCHAR(10) NOT NULL,
+    date DATE NOT NULL,
+    close_price DECIMAL(10,2) NOT NULL,
+    volume INT NOT NULL,
+    PRIMARY KEY (ticker, date),
+    FOREIGN KEY (ticker) REFERENCES stock(ticker)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
+
+DELIMITER //
+CREATE FUNCTION calculate_trend_indicator(
+    ticker_symbol VARCHAR(10)
+) RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE trend DECIMAL(10,2);
+    
+    SELECT 
+        ((last_price - first_price) / first_price) * 100 INTO trend
+    FROM (
+        SELECT 
+            MAX(CASE WHEN rn = 1 THEN close_price END) as last_price,
+            MAX(CASE WHEN rn = total THEN close_price END) as first_price
+        FROM (
+            SELECT 
+                close_price,
+                ROW_NUMBER() OVER (ORDER BY date DESC) as rn,
+                COUNT(*) OVER () as total
+            FROM stock_historical_data
+            WHERE ticker = ticker_symbol
+            ORDER BY date DESC
+            LIMIT 30
+        ) ranked_prices
+    ) price_comparison;
+    
+    RETURN COALESCE(trend, 0);
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER update_trend_indicator
+AFTER INSERT ON stock_historical_data
+FOR EACH ROW
+BEGIN
+    UPDATE stock
+    SET trend_indicator = calculate_trend_indicator(NEW.ticker)
+    WHERE ticker = NEW.ticker;
+END //
+DELIMITER ;
+
 CREATE TABLE IF NOT EXISTS personalPortfolio (
     portfolio_id INT NOT NULL,
     beta DECIMAL(50, 6) NOT NULL,
@@ -166,3 +222,75 @@ CREATE TABLE IF NOT EXISTS employees (
     FOREIGN KEY (user_metric_id)
         REFERENCES userMetrics(user_metric_ID)
 );
+
+
+TRUNCATE TABLE stock_historical_data;
+
+DELIMITER //
+CREATE FUNCTION IF NOT EXISTS generate_price(
+    base_price DECIMAL(10,2),
+    beta DECIMAL(10,4),
+    days_ago INT
+) 
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE volatility DECIMAL(10,4);
+    DECLARE random_factor DECIMAL(10,4);
+    DECLARE price_change DECIMAL(10,4);
+    
+    SET volatility = beta * 0.01; 
+    SET random_factor = (RAND() - 0.5) * 2;
+    SET price_change = 1 + (random_factor * volatility * (1 - (days_ago / 60)));
+    
+    RETURN ROUND(base_price * price_change, 2);
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE FUNCTION IF NOT EXISTS generate_volume(
+    base_price DECIMAL(10,2),
+    beta DECIMAL(10,4)
+)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE base_volume INT;
+    DECLARE random_factor DECIMAL(10,4);
+    
+    SET base_volume = FLOOR(1000000 / (base_price * 0.1));
+    SET random_factor = 0.5 + (RAND() * 1.5);
+    
+    RETURN FLOOR(base_volume * random_factor);
+END //
+DELIMITER ;
+
+INSERT INTO stock_historical_data (ticker, date, close_price, volume)
+SELECT 
+    s.ticker,
+    d.date,
+    generate_price(s.sharePrice, s.beta, DATEDIFF(CURRENT_DATE, d.date)),
+    generate_volume(s.sharePrice, s.beta)
+FROM stock s
+CROSS JOIN (
+    SELECT DATE_SUB(CURRENT_DATE, INTERVAL n DAY) as date
+    FROM (
+        SELECT @row := @row + 1 as n
+        FROM (SELECT 0 UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) t1
+        CROSS JOIN (SELECT 0 UNION ALL SELECT 1 UNION ALL SELECT 2) t2
+        CROSS JOIN (SELECT @row := -1) t3
+        ORDER BY n
+    ) numbers
+    WHERE n <= 30
+) d;
+
+DROP FUNCTION IF EXISTS generate_price;
+DROP FUNCTION IF EXISTS generate_volume;
+
+UPDATE stock s
+INNER JOIN (
+    SELECT ticker, close_price
+    FROM stock_historical_data
+    WHERE date = (SELECT MAX(date) FROM stock_historical_data)
+) h ON s.ticker = h.ticker
+SET s.sharePrice = h.close_price;

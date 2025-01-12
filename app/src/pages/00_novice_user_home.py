@@ -34,3 +34,8 @@ if st.button('Financial AI Consultant (Novice)',
              use_container_width=True):
   st.switch_page('pages/97_reg_chatbot.py') 
 
+if st.button('Stock Analysis', 
+            type='primary',
+            use_container_width=True):
+  st.switch_page('pages/04_novice_user_stock_analysis.py')
+
