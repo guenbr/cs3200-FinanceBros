@@ -6,6 +6,8 @@ This repository is for the FinanceBros project. The project is designed to empow
 
 [Project video (Drive)](https://drive.google.com/file/d/1xEvD-DX-1S-J9cZIN2m7kjXQMQX093R-/view)
 
+Note: The videos have mislabeled names. The one labeled "Justin Iverson" is actually Bryan Guen, and the one labeled "Bryan Guen" is actually Justin Iverson.
+
 ## Description
 
 The FinanceBros project is a social media platform for finance enthusiasts that aims to help users make informed financial decisions. By offering detailed performance metrics and strategies from leading financial figures, the platform provides a unique perspective on investment opportunities. Users can stay informed with real-time data and trends, receive personalized recommendations, and follow the activities of influential traders. This platform is designed to guide both novice and experienced investors through the complexities of the financial market. Additionally, a financial consultant chatbot feature is available and is customized to each users needs.
